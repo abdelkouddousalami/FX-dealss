@@ -12,19 +12,20 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      postgres:
-        image: postgres:16-alpine
+      mysql:
+        image: mysql:8.0
         env:
-          POSTGRES_DB: fxdeals_test
-          POSTGRES_USER: test_user
-          POSTGRES_PASSWORD: test_password
+          MYSQL_DATABASE: fxdeals_test
+          MYSQL_USER: test_user
+          MYSQL_PASSWORD: test_password
+          MYSQL_ROOT_PASSWORD: root_password
         ports:
-          - 5432:5432
+          - 3306:3306
         options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     steps:
     - name: Checkout code
@@ -42,6 +43,12 @@ jobs:
 
     - name: Run tests
       run: mvn test
+      env:
+        DB_HOST: localhost
+        DB_PORT: 3306
+        DB_NAME: fxdeals_test
+        DB_USER: test_user
+        DB_PASSWORD: test_password
 
     - name: Generate test coverage report
       run: mvn jacoco:report
@@ -115,7 +122,7 @@ jobs:
       run: |
         echo "Waiting for application to be ready..."
         for i in {1..30}; do
-          if curl -f http://localhost:8080/api/fx-deals/health; then
+          if curl -f http://localhost:8080/fxdeals/api/fx-deals/health; then
             echo "Application is ready!"
             break
           fi
@@ -126,10 +133,10 @@ jobs:
     - name: Run API tests
       run: |
         # Test health endpoint
-        curl -f http://localhost:8080/api/fx-deals/health
+        curl -f http://localhost:8080/fxdeals/api/fx-deals/health
 
         # Test create deal
-        response=$(curl -s -w "\n%{http_code}" -X POST http://localhost:8080/api/fx-deals \
+        response=$(curl -s -w "\n%{http_code}" -X POST http://localhost:8080/fxdeals/api/fx-deals \
           -H "Content-Type: application/json" \
           -d '{
             "dealUniqueId": "TEST_'$(date +%s)'",
@@ -146,7 +153,7 @@ jobs:
         fi
 
         # Test list deals
-        curl -f http://localhost:8080/api/fx-deals
+        curl -f http://localhost:8080/fxdeals/api/fx-deals
 
     - name: Show logs on failure
       if: failure()
@@ -171,8 +178,12 @@ jobs:
         distribution: 'temurin'
         cache: maven
 
+    - name: Build project
+      run: mvn clean compile -DskipTests
+
     - name: OWASP Dependency Check
-      run: mvn org.owasp:dependency-check-maven:check || true
+      run: mvn org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=8 || echo "Security scan completed with warnings"
+      continue-on-error: true
 
     - name: Upload security report
       if: always()
