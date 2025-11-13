@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: fxdeals-mysql
+    environment:
+      MYSQL_DATABASE: fxdeals
+      MYSQL_USER: fxdeals_user
+      MYSQL_PASSWORD: fxdeals_password
+      MYSQL_ROOT_PASSWORD: root_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - fxdeals-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  wildfly:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fxdeals-wildfly
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: fxdeals
+      DB_USER: fxdeals_user
+      DB_PASSWORD: fxdeals_password
+    ports:
+      - "8080:8080"
+      - "9990:9990"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - fxdeals-network
+    volumes:
+      - ./logs:/opt/jboss/wildfly/standalone/log/fxdeals
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/fx-deals/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+networks:
+  fxdeals-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+    driver: local

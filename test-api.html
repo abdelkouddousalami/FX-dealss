@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FX Deals API Tester</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .endpoint {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .endpoint h3 {
+            color: #0066cc;
+            margin-top: 0;
+        }
+        .method {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .get { background-color: #61affe; color: white; }
+        .post { background-color: #49cc90; color: white; }
+        .url {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 10px 0;
+            word-break: break-all;
+        }
+        button {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #0052a3;
+        }
+        .response {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 FX Deals API Tester</h1>
+    <p style="text-align: center; color: #666;">Base URL: <strong>http://localhost:8080/fxdeals/api/fx-deals</strong></p>
+
+    <!-- Health Check -->
+    <div class="endpoint">
+        <h3><span class="method get">GET</span> Health Check</h3>
+        <div class="url">http://localhost:8080/fxdeals/api/fx-deals/health</div>
+        <button onclick="testHealth()">Test Health</button>
+        <div id="health-response" class="response" style="display:none;"></div>
+    </div>
+
+    <!-- Get All Deals -->
+    <div class="endpoint">
+        <h3><span class="method get">GET</span> Get All Deals</h3>
+        <div class="url">http://localhost:8080/fxdeals/api/fx-deals</div>
+        <button onclick="getAllDeals()">Get All Deals</button>
+        <div id="all-deals-response" class="response" style="display:none;"></div>
+    </div>
+
+    <!-- Create Deal -->
+    <div class="endpoint">
+        <h3><span class="method post">POST</span> Create FX Deal</h3>
+        <div class="url">http://localhost:8080/fxdeals/api/fx-deals</div>
+        <textarea id="create-deal-body">{
+  "dealUniqueId": "DEAL-WEB-001",
+  "fromCurrencyIso": "USD",
+  "toCurrencyIso": "EUR",
+  "dealTimestamp": "2025-11-13T10:30:00",
+  "dealAmount": 5000.00
+}</textarea>
+        <button onclick="createDeal()">Create Deal</button>
+        <div id="create-deal-response" class="response" style="display:none;"></div>
+    </div>
+
+    <!-- Get Deal by ID -->
+    <div class="endpoint">
+        <h3><span class="method get">GET</span> Get Deal by ID</h3>
+        <div class="url">http://localhost:8080/fxdeals/api/fx-deals/<input type="number" id="deal-id" value="1" style="width: 60px;"></div>
+        <button onclick="getDealById()">Get Deal</button>
+        <div id="deal-by-id-response" class="response" style="display:none;"></div>
+    </div>
+
+    <!-- Get Deal by Unique ID -->
+    <div class="endpoint">
+        <h3><span class="method get">GET</span> Get Deal by Unique ID</h3>
+        <div class="url">http://localhost:8080/fxdeals/api/fx-deals/unique/<input type="text" id="unique-id" value="DEAL-TEST-001" style="width: 150px;"></div>
+        <button onclick="getDealByUniqueId()">Get Deal</button>
+        <div id="deal-by-unique-id-response" class="response" style="display:none;"></div>
+    </div>
+
+    <script>
+        const BASE_URL = 'http://localhost:8080/fxdeals/api/fx-deals';
+
+        async function makeRequest(url, options = {}) {
+            try {
+                const response = await fetch(url, options);
+                const contentType = response.headers.get('content-type');
+                let data;
+                
+                if (contentType && contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    data = await response.text();
+                }
+
+                return {
+                    ok: response.ok,
+                    status: response.status,
+                    data: data
+                };
+            } catch (error) {
+                return {
+                    ok: false,
+                    error: error.message
+                };
+            }
+        }
+
+        function displayResponse(elementId, response) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            
+            if (response.ok === false && response.error) {
+                element.innerHTML = `<span class="error">❌ Error: ${response.error}</span>`;
+                return;
+            }
+
+            const statusClass = response.ok ? 'success' : 'error';
+            const statusIcon = response.ok ? '✅' : '❌';
+            
+            element.innerHTML = `
+                <div class="${statusClass}">${statusIcon} Status: ${response.status}</div>
+                <pre>${JSON.stringify(response.data, null, 2)}</pre>
+            `;
+        }
+
+        async function testHealth() {
+            const response = await makeRequest(`${BASE_URL}/health`);
+            displayResponse('health-response', response);
+        }
+
+        async function getAllDeals() {
+            const response = await makeRequest(`${BASE_URL}`);
+            displayResponse('all-deals-response', response);
+        }
+
+        async function createDeal() {
+            const body = document.getElementById('create-deal-body').value;
+            try {
+                JSON.parse(body); // Validate JSON
+            } catch (e) {
+                alert('Invalid JSON: ' + e.message);
+                return;
+            }
+
+            const response = await makeRequest(`${BASE_URL}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: body
+            });
+            displayResponse('create-deal-response', response);
+        }
+
+        async function getDealById() {
+            const id = document.getElementById('deal-id').value;
+            const response = await makeRequest(`${BASE_URL}/${id}`);
+            displayResponse('deal-by-id-response', response);
+        }
+
+        async function getDealByUniqueId() {
+            const uniqueId = document.getElementById('unique-id').value;
+            const response = await makeRequest(`${BASE_URL}/unique/${uniqueId}`);
+            displayResponse('deal-by-unique-id-response', response);
+        }
+
+        // Test health on page load
+        window.onload = function() {
+            testHealth();
+        };
+    </script>
+</body>
+</html>

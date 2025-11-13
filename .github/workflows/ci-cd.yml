@@ -1,0 +1,236 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: fxdeals_test
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Build with Maven
+      run: mvn clean install -DskipTests
+
+    - name: Run tests
+      run: mvn test
+
+    - name: Generate test coverage report
+      run: mvn jacoco:report
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./target/site/jacoco/jacoco.xml
+        flags: unittests
+        name: codecov-umbrella
+
+    - name: Archive test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: target/surefire-reports
+
+    - name: Archive coverage report
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report
+        path: target/site/jacoco
+
+    - name: Build Docker image
+      run: docker build -t fxdeals:${{ github.sha }} .
+
+    - name: Save Docker image
+      run: docker save fxdeals:${{ github.sha }} | gzip > fxdeals.tar.gz
+
+    - name: Upload Docker image artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: docker-image
+        path: fxdeals.tar.gz
+
+  code-quality:
+    name: Code Quality Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Run Maven verify
+      run: mvn verify -DskipTests
+
+    - name: Check code style
+      run: mvn checkstyle:check || true
+
+  integration-test:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Start services with Docker Compose
+      run: docker-compose up -d
+
+    - name: Wait for application to start
+      run: |
+        echo "Waiting for application to be ready..."
+        for i in {1..30}; do
+          if curl -f http://localhost:8080/api/fx-deals/health; then
+            echo "Application is ready!"
+            break
+          fi
+          echo "Waiting... ($i/30)"
+          sleep 10
+        done
+
+    - name: Run API tests
+      run: |
+        # Test health endpoint
+        curl -f http://localhost:8080/api/fx-deals/health
+
+        # Test create deal
+        response=$(curl -s -w "\n%{http_code}" -X POST http://localhost:8080/api/fx-deals \
+          -H "Content-Type: application/json" \
+          -d '{
+            "dealUniqueId": "TEST_'$(date +%s)'",
+            "fromCurrencyIso": "USD",
+            "toCurrencyIso": "EUR",
+            "dealTimestamp": "2024-01-15T10:30:00",
+            "dealAmount": 1000.50
+          }')
+        
+        http_code=$(echo "$response" | tail -n1)
+        if [ "$http_code" != "201" ]; then
+          echo "Failed to create deal. HTTP status: $http_code"
+          exit 1
+        fi
+
+        # Test list deals
+        curl -f http://localhost:8080/api/fx-deals
+
+    - name: Show logs on failure
+      if: failure()
+      run: docker-compose logs
+
+    - name: Stop services
+      if: always()
+      run: docker-compose down -v
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: OWASP Dependency Check
+      run: mvn org.owasp:dependency-check-maven:check || true
+
+    - name: Upload security report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-report
+        path: target/dependency-check-report.html
+
+  docker-publish:
+    name: Publish Docker Image
+    runs-on: ubuntu-latest
+    needs: [build, integration-test]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v4
+      with:
+        images: ${{ secrets.DOCKER_USERNAME }}/fxdeals
+        tags: |
+          type=ref,event=branch
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=sha
+
+    - name: Build and push
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  notification:
+    name: Send Notification
+    runs-on: ubuntu-latest
+    needs: [build, code-quality, integration-test, security-scan]
+    if: always()
+
+    steps:
+    - name: Send notification
+      run: |
+        echo "Build Status: ${{ job.status }}"
+        echo "Branch: ${{ github.ref }}"
+        echo "Commit: ${{ github.sha }}"
+        # Add your notification logic here (Slack, Email, etc.)

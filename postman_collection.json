@@ -1,0 +1,490 @@
+{
+	"info": {
+		"_postman_id": "fx-deals-api-collection",
+		"name": "FX Deals Data Warehouse API",
+		"description": "Complete collection for testing Bloomberg FX Deals API endpoints",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/fxdeals/api/fx-deals/health",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["fxdeals", "api", "fx-deals", "health"]
+				},
+				"description": "Check if the API is running"
+			},
+			"response": []
+		},
+		{
+			"name": "Create FX Deal - Valid USD to EUR",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"dealUniqueId\": \"DEAL-2025-001\",\n  \"fromCurrencyIso\": \"USD\",\n  \"toCurrencyIso\": \"EUR\",\n  \"dealTimestamp\": \"2025-11-13T10:30:00\",\n  \"dealAmount\": 1000000.50\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/fxdeals/api/fx-deals",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["fxdeals", "api", "fx-deals"]
+				},
+				"description": "Create a new FX deal with USD to EUR conversion"
+			},
+			"response": []
+		},
+		{
+			"name": "Create FX Deal - Valid GBP to JPY",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"dealUniqueId\": \"DEAL-2025-002\",\n  \"fromCurrencyIso\": \"GBP\",\n  \"toCurrencyIso\": \"JPY\",\n  \"dealTimestamp\": \"2025-11-13T11:45:00\",\n  \"dealAmount\": 500000.75\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/fxdeals/api/fx-deals",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["fxdeals", "api", "fx-deals"]
+				},
+				"description": "Create FX deal with GBP to JPY"
+			},
+			"response": []
+		},
+		{
+			"name": "Create FX Deal - Valid EUR to CHF",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"dealUniqueId\": \"DEAL-2025-003\",\n  \"fromCurrencyIso\": \"EUR\",\n  \"toCurrencyIso\": \"CHF\",\n  \"dealTimestamp\": \"2025-11-13T09:15:00\",\n  \"dealAmount\": 250000.00\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/fxdeals/api/fx-deals",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["fxdeals", "api", "fx-deals"]
+				},
+				"description": "Create FX deal with EUR to CHF"
+			},
+			"response": []
+		},
+		{
+			"name": "Create FX Deal - Valid CAD to AUD",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"dealUniqueId\": \"DEAL-2025-004\",\n  \"fromCurrencyIso\": \"CAD\",\n  \"toCurrencyIso\": \"AUD\",\n  \"dealTimestamp\": \"2025-11-12T14:20:00\",\n  \"dealAmount\": 750000.99\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/fxdeals/api/fx-deals",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["fxdeals", "api", "fx-deals"]
+				},
+				"description": "Create FX deal with CAD to AUD"
+			},
+			"response": []
+		},
+		{
+			"name": "Create FX Deal - Large Amount",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"dealUniqueId\": \"DEAL-2025-005\",\n  \"fromCurrencyIso\": \"USD\",\n  \"toCurrencyIso\": \"GBP\",\n  \"dealTimestamp\": \"2025-11-13T08:00:00\",\n  \"dealAmount\": 999999999999999.99\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/fxdeals/api/fx-deals",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["fxdeals", "api", "fx-deals"]
+				},
+				"description": "Create FX deal with maximum allowed amount"
+			},
+			"response": []
+		},
+		{
+			"name": "Create FX Deal - Small Amount",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"dealUniqueId\": \"DEAL-2025-006\",\n  \"fromCurrencyIso\": \"EUR\",\n  \"toCurrencyIso\": \"USD\",\n  \"dealTimestamp\": \"2025-11-13T12:00:00\",\n  \"dealAmount\": 0.01\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/fxdeals/api/fx-deals",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["fxdeals", "api", "fx-deals"]
+				},
+				"description": "Create FX deal with minimum allowed amount"
+			},
+			"response": []
+		},
+		{
+			"name": "Create FX Deal - DUPLICATE (Should Fail)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"dealUniqueId\": \"DEAL-2025-001\",\n  \"fromCurrencyIso\": \"USD\",\n  \"toCurrencyIso\": \"EUR\",\n  \"dealTimestamp\": \"2025-11-13T10:30:00\",\n  \"dealAmount\": 1000000.50\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/fxdeals/api/fx-deals",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["fxdeals", "api", "fx-deals"]
+				},
+				"description": "Try to create duplicate deal - should return 409 Conflict"
+			},
+			"response": []
+		},
+		{
+			"name": "Create FX Deal - Missing Deal ID (Should Fail)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"fromCurrencyIso\": \"USD\",\n  \"toCurrencyIso\": \"EUR\",\n  \"dealTimestamp\": \"2025-11-13T10:30:00\",\n  \"dealAmount\": 1000.00\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/fxdeals/api/fx-deals",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["fxdeals", "api", "fx-deals"]
+				},
+				"description": "Missing dealUniqueId - should return 400 Bad Request"
+			},
+			"response": []
+		},
+		{
+			"name": "Create FX Deal - Invalid Currency Format (Should Fail)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"dealUniqueId\": \"DEAL-2025-999\",\n  \"fromCurrencyIso\": \"US\",\n  \"toCurrencyIso\": \"EUR\",\n  \"dealTimestamp\": \"2025-11-13T10:30:00\",\n  \"dealAmount\": 1000.00\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/fxdeals/api/fx-deals",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["fxdeals", "api", "fx-deals"]
+				},
+				"description": "Invalid currency format (US instead of USD) - should return 400"
+			},
+			"response": []
+		},
+		{
+			"name": "Create FX Deal - Same Currency (Should Fail)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"dealUniqueId\": \"DEAL-2025-998\",\n  \"fromCurrencyIso\": \"USD\",\n  \"toCurrencyIso\": \"USD\",\n  \"dealTimestamp\": \"2025-11-13T10:30:00\",\n  \"dealAmount\": 1000.00\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/fxdeals/api/fx-deals",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["fxdeals", "api", "fx-deals"]
+				},
+				"description": "Same from and to currency - should return 400"
+			},
+			"response": []
+		},
+		{
+			"name": "Create FX Deal - Zero Amount (Should Fail)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"dealUniqueId\": \"DEAL-2025-997\",\n  \"fromCurrencyIso\": \"USD\",\n  \"toCurrencyIso\": \"EUR\",\n  \"dealTimestamp\": \"2025-11-13T10:30:00\",\n  \"dealAmount\": 0.00\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/fxdeals/api/fx-deals",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["fxdeals", "api", "fx-deals"]
+				},
+				"description": "Zero amount - should return 400"
+			},
+			"response": []
+		},
+		{
+			"name": "Create FX Deal - Negative Amount (Should Fail)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"dealUniqueId\": \"DEAL-2025-996\",\n  \"fromCurrencyIso\": \"USD\",\n  \"toCurrencyIso\": \"EUR\",\n  \"dealTimestamp\": \"2025-11-13T10:30:00\",\n  \"dealAmount\": -1000.00\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/fxdeals/api/fx-deals",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["fxdeals", "api", "fx-deals"]
+				},
+				"description": "Negative amount - should return 400"
+			},
+			"response": []
+		},
+		{
+			"name": "Create FX Deal - Future Date (Should Fail)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"dealUniqueId\": \"DEAL-2025-995\",\n  \"fromCurrencyIso\": \"USD\",\n  \"toCurrencyIso\": \"EUR\",\n  \"dealTimestamp\": \"2026-12-31T23:59:59\",\n  \"dealAmount\": 1000.00\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/fxdeals/api/fx-deals",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["fxdeals", "api", "fx-deals"]
+				},
+				"description": "Future timestamp - should return 400"
+			},
+			"response": []
+		},
+		{
+			"name": "Get All FX Deals",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/fxdeals/api/fx-deals",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["fxdeals", "api", "fx-deals"]
+				},
+				"description": "Retrieve all FX deals (default pagination)"
+			},
+			"response": []
+		},
+		{
+			"name": "Get All FX Deals - With Pagination",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/fxdeals/api/fx-deals?offset=0&limit=5",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["fxdeals", "api", "fx-deals"],
+					"query": [
+						{
+							"key": "offset",
+							"value": "0"
+						},
+						{
+							"key": "limit",
+							"value": "5"
+						}
+					]
+				},
+				"description": "Get first 5 deals"
+			},
+			"response": []
+		},
+		{
+			"name": "Get All FX Deals - Page 2",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/fxdeals/api/fx-deals?offset=5&limit=5",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["fxdeals", "api", "fx-deals"],
+					"query": [
+						{
+							"key": "offset",
+							"value": "5"
+						},
+						{
+							"key": "limit",
+							"value": "5"
+						}
+					]
+				},
+				"description": "Get next 5 deals (page 2)"
+			},
+			"response": []
+		},
+		{
+			"name": "Get FX Deal by ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/fxdeals/api/fx-deals/1",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["fxdeals", "api", "fx-deals", "1"]
+				},
+				"description": "Get deal by ID (change 1 to actual ID)"
+			},
+			"response": []
+		},
+		{
+			"name": "Get FX Deal by ID - Not Found",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/fxdeals/api/fx-deals/99999",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["fxdeals", "api", "fx-deals", "99999"]
+				},
+				"description": "Try to get non-existent deal - should return 404"
+			},
+			"response": []
+		},
+		{
+			"name": "Get FX Deal by Unique ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/fxdeals/api/fx-deals/unique/DEAL-2025-001",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["fxdeals", "api", "fx-deals", "unique", "DEAL-2025-001"]
+				},
+				"description": "Get deal by unique deal ID"
+			},
+			"response": []
+		},
+		{
+			"name": "Get FX Deal by Unique ID - Not Found",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/fxdeals/api/fx-deals/unique/DEAL-NOT-EXISTS",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "8080",
+					"path": ["fxdeals", "api", "fx-deals", "unique", "DEAL-NOT-EXISTS"]
+				},
+				"description": "Try to get non-existent deal by unique ID - should return 404"
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080/fxdeals",
+			"type": "string"
+		}
+	]
+}

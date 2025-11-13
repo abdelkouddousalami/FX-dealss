@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence
+             https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd"
+             version="3.0">
+
+    <persistence-unit name="fxdealsPU" transaction-type="JTA">
+        <jta-data-source>java:jboss/datasources/FxDealsDS</jta-data-source>
+        
+        <class>com.bloomberg.fxdeals.entity.FxDeal</class>
+        
+        <properties>
+            <!-- Hibernate dialect for PostgreSQL -->
+                        <!-- Hibernate Settings -->
+            <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/>
+            
+            <!-- Auto-create/update schema -->
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
+            
+            <!-- Show SQL in logs -->
+            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.format_sql" value="true"/>
+            
+            <!-- Connection pool settings -->
+            <property name="hibernate.connection.pool_size" value="10"/>
+            
+            <!-- Enable second-level cache -->
+            <property name="hibernate.cache.use_second_level_cache" value="false"/>
+            
+            <!-- Other Hibernate settings -->
+            <property name="hibernate.jdbc.batch_size" value="20"/>
+            <property name="hibernate.order_inserts" value="true"/>
+            <property name="hibernate.order_updates" value="true"/>
+        </properties>
+    </persistence-unit>
+
+</persistence>
