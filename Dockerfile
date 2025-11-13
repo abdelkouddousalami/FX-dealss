@@ -17,8 +17,8 @@ FROM quay.io/wildfly/wildfly:30.0.0.Final-jdk17
 
 # Set environment variables
 ENV WILDFLY_HOME=/opt/jboss/wildfly
-ENV DB_HOST=postgres
-ENV DB_PORT=5432
+ENV DB_HOST=fxdeals-mysql
+ENV DB_PORT=3306
 ENV DB_NAME=fxdeals
 ENV DB_USER=fxdeals_user
 ENV DB_PASSWORD=fxdeals_password
