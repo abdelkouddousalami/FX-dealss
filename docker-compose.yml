@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   mysql:
     image: mysql:8.0
@@ -28,8 +26,8 @@ services:
       dockerfile: Dockerfile
     container_name: fxdeals-wildfly
     environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
+      DB_HOST: fxdeals-mysql
+      DB_PORT: 3306
       DB_NAME: fxdeals
       DB_USER: fxdeals_user
       DB_PASSWORD: fxdeals_password
@@ -44,7 +42,7 @@ services:
     volumes:
       - ./logs:/opt/jboss/wildfly/standalone/log/fxdeals
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/api/fx-deals/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/fxdeals/api/fx-deals/health"]
       interval: 30s
       timeout: 10s
       retries: 5
